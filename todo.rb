@@ -78,3 +78,10 @@ post "/lists/:id" do |id|
     redirect "/lists/#{id}"
   end
 end
+
+# Delete a todo list
+post "/lists/:id/delete" do |id|
+  session[:lists].delete_at(id.to_i)
+  session[:success] = "The list has been deleted"
+  redirect "/lists"
+end
