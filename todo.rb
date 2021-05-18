@@ -49,3 +49,9 @@ post "/lists" do
     redirect "/lists"
   end
 end
+
+# Display a single todo list
+get "/lists/:id" do |id|
+  @list = session[:lists][id.to_i]
+  erb :list, layout: :layout
+end
