@@ -11,13 +11,13 @@
   </header>
 </section>
 
-<form action="/lists/<%= params[:id] %>" method="post">
+<form action="/lists/<%= @list_id %>" method="post">
   <dl>
     <dt>
       <label for="list_name">Enter the new name for your list:</label>
     </dt>
     <dd>
-      <input name="list_name" type="text" value="<%= params[:list_name] || @list[:name] %>">
+      <input name="list_name" type="text" value="<%= @list_id || @list[:name] %>">
     </dd>
   </dl>
   <fieldset class="actions">

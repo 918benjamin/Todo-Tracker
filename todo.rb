@@ -53,7 +53,8 @@ end
 
 # Display a single todo list
 get "/lists/:id" do |id|
-  @list = session[:lists][id.to_i]
+  @list_id = id.to_i
+  @list = session[:lists][@list_id]
   erb :list, layout: :layout
 end
 
@@ -65,7 +66,8 @@ end
 
 # Update an existing todo list
 post "/lists/:id" do |id|
-  @list = session[:lists][id.to_i]
+  @list_id = id.to_i
+  @list = session[:lists][@list_id]
   list_name = params[:list_name].strip
   error = error_for_list_name(list_name)
 
@@ -84,4 +86,30 @@ post "/lists/:id/delete" do |id|
   session[:lists].delete_at(id.to_i)
   session[:success] = "The list has been deleted"
   redirect "/lists"
+end
+
+# Return an error message if the todo is invalid, nil if todo is valid
+def error_for_todo_name(todo_name)
+  if !(1..100).cover?(todo_name.size)
+    "Todo must be between 1 and 100 characters."
+  end
+end
+
+# Add a todo to a list
+post "/lists/:list_id/todos" do |list_id|
+  @list_id = list_id.to_i
+  @list = session[:lists][@list_id]
+  todo_name = params[:todo].strip
+  error = error_for_todo_name(todo_name)
+  
+  
+
+  if error
+    session[:error] = error
+    erb :list, layout: :layout
+  else
+    @list[:todos] << {name: todo_name, completed: false}
+    session[:success] = "The todo was added."
+    redirect "/lists/#{@list_id}"
+  end
 end
