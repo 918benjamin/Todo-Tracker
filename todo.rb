@@ -101,8 +101,6 @@ post "/lists/:list_id/todos" do |list_id|
   @list = session[:lists][@list_id]
   todo_name = params[:todo].strip
   error = error_for_todo_name(todo_name)
-  
-  
 
   if error
     session[:error] = error
@@ -112,4 +110,15 @@ post "/lists/:list_id/todos" do |list_id|
     session[:success] = "The todo was added."
     redirect "/lists/#{@list_id}"
   end
+end
+
+# Delete a todo from a list
+post "/lists/:list_id/todos/:todo_id/delete" do
+  @list_id = params[:list_id].to_i
+  @list = session[:lists][@list_id]
+  todo_id = params[:todo_id].to_i
+  
+  @list[:todos].delete_at(todo_id)
+  session[:success] = "The todo has been deleted."
+  redirect "/lists/#{list_id}"
 end
