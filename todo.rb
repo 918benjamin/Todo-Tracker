@@ -25,16 +25,36 @@ helpers do
     list[:todos].size
   end
 
-  def sort_lists(lists)
-    result = []
+  def sort_lists(lists, &block)
+    incomplete_lists = {}
+    complete_lists = {}
+
     lists.each_with_index do |list, index|
-      result << {list: list, index: index}
+      if list_complete?(list)
+        complete_lists[list] = index
+      else
+        incomplete_lists[list] = index
+      end
     end
-    
-    result.sort_by! {|hash| list_complete?(hash[:list]) ? 1 : 0}
-    result.each do |hash|
-      yield(hash[:list], hash[:index]) if block_given?
+
+    incomplete_lists.each(&block)
+    complete_lists.each(&block)
+  end
+
+  def sort_todos(todos, &block)
+    incomplete_todos = {}
+    complete_todos = {}
+
+    todos.each_with_index do |todo, index|
+      if todo[:completed]
+        complete_todos[todo] = index
+      else
+        incomplete_todos[todo] = index
+      end
     end
+
+    incomplete_todos.each(&block)
+    complete_todos.each(&block)
   end
 end
 

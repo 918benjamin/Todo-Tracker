@@ -12,8 +12,8 @@
   </header>
 
   <ul>
-  <% @list[:todos].each_with_index do |todo, index| %> 
-    <% if @list[:todos][index][:completed] %>
+  <% sort_todos(@list[:todos]) do |todo, index| %> 
+    <% if todo[:completed] %>
       <li class="complete">
     <% else %>
       <li>
