@@ -8,6 +8,36 @@ configure do
   set :session_secret, 'secret'
 end
 
+helpers do
+  def list_complete?(list)
+    todos_count(list) > 0 && todos_remaining(list) == 0
+  end
+
+  def list_class(list)
+    "complete" if list_complete?(list)
+  end
+
+  def todos_remaining(list)
+    list[:todos].count { |todo| !todo[:completed] }
+  end
+
+  def todos_count(list)
+    list[:todos].size
+  end
+
+  def sort_lists(lists)
+    result = []
+    lists.each_with_index do |list, index|
+      result << {list: list, index: index}
+    end
+    
+    result.sort_by! {|hash| list_complete?(hash[:list]) ? 1 : 0}
+    result.each do |hash|
+      yield(hash[:list], hash[:index]) if block_given?
+    end
+  end
+end
+
 before do
   session[:lists] ||= []
 end
@@ -120,5 +150,29 @@ post "/lists/:list_id/todos/:todo_id/delete" do
   
   @list[:todos].delete_at(todo_id)
   session[:success] = "The todo has been deleted."
-  redirect "/lists/#{list_id}"
+  redirect "/lists/#{@list_id}"
+end
+
+# Check/uncheck a todo item
+post "/lists/:list_id/todos/:todo_id" do
+  @list_id = params[:list_id].to_i
+  @list = session[:lists][@list_id]
+  todo_id = params[:todo_id].to_i
+
+  is_completed = params[:completed] == "true"
+  @list[:todos][todo_id][:completed] = is_completed
+  session[:success] = "The todo has been updated"
+  redirect "/lists/#{@list_id}"
+end
+
+# Complete all todos in a list
+post "/lists/:list_id/complete_all" do
+  @list_id = params[:list_id].to_i
+  @list = session[:lists][@list_id]
+  
+  @list[:todos].each do |todo|
+    todo[:completed] = true
+  end
+  session[:success] = "All todos have been completed."
+  redirect "/lists/#{@list_id}"
 end
